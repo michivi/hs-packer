@@ -42,6 +42,7 @@ import Foreign.ForeignPtr
 import Data.Data
 import Data.Word
 import Control.Exception (Exception, throwIO, try, SomeException)
+import Control.Monad.Fail
 import Control.Monad.IO.Class
 import Control.Applicative (Alternative(..), Applicative(..), (<$>), (<*>))
 import Control.Concurrent.MVar
@@ -92,6 +93,9 @@ newtype Unpacking a = Unpacking { runUnpacking_ :: (ForeignPtr Word8, Memory) ->
 instance Monad Unpacking where
     return = returnUnpacking
     (>>=)  = bindUnpacking
+
+instance MonadFail Unpacking where
+    fail = error
 
 instance MonadIO Unpacking where
     liftIO f = Unpacking $ \_ st -> f >>= \a -> return (a,st)
